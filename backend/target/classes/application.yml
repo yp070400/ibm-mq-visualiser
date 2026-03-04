@@ -44,6 +44,12 @@ mq:
 
     queue-managers:
 
+      # Style 1: connectionName (IBM MQ standard — use this for real servers)
+      # connection-name: "mq-server.example.com(1414)"
+      # Multi-instance / HA example:
+      # connection-name: "mq1.example.com(1414),mq2.example.com(1414)"
+
+      # Style 2: separate host + port (convenient for local/Docker)
       - name: QM1
         host: localhost
         port: 1414

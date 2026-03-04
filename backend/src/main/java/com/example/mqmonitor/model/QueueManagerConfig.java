@@ -8,8 +8,18 @@ package com.example.mqmonitor.model;
 public class QueueManagerConfig {
 
     private String name;
+
+    /**
+     * IBM MQ connectionName — standard format: "hostname(port)"
+     * Supports multi-instance/HA: "host1(1414),host2(1414)"
+     * If set, takes precedence over host + port fields.
+     */
+    private String connectionName;
+
+    /** Used when connectionName is not set. */
     private String host;
     private int port = 1414;
+
     private String channel;
     private String username;
     private String password;
@@ -22,14 +32,28 @@ public class QueueManagerConfig {
     private boolean excludeSystemQueues = true;
     private boolean enabled = true;
 
-    public String getName()                     { return name; }
-    public void   setName(String v)             { this.name = v; }
+    public String getName()                       { return name; }
+    public void   setName(String v)               { this.name = v; }
 
-    public String getHost()                     { return host; }
-    public void   setHost(String v)             { this.host = v; }
+    public String getConnectionName()             { return connectionName; }
+    public void   setConnectionName(String v)     { this.connectionName = v; }
 
-    public int    getPort()                     { return port; }
-    public void   setPort(int v)                { this.port = v; }
+    public String getHost()                       { return host; }
+    public void   setHost(String v)               { this.host = v; }
+
+    public int    getPort()                       { return port; }
+    public void   setPort(int v)                  { this.port = v; }
+
+    /**
+     * Returns connectionName if set, otherwise constructs "host(port)" from
+     * the individual fields — so both config styles produce the same result.
+     */
+    public String resolvedConnectionName() {
+        if (connectionName != null && !connectionName.isBlank()) {
+            return connectionName;
+        }
+        return host + "(" + port + ")";
+    }
 
     public String getChannel()                  { return channel; }
     public void   setChannel(String v)          { this.channel = v; }

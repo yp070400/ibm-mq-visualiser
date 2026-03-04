@@ -106,7 +106,7 @@ public class MQConnectionManager implements DisposableBean {
 
     private PCFMessageAgent createConnection(QueueManagerConfig config) throws MQException {
         String name = config.getName();
-        log.info("Connecting to queue manager {} at {}:{}", name, config.getHost(), config.getPort());
+        log.info("Connecting to queue manager {} ({})", name, config.resolvedConnectionName());
         statuses.put(name, ConnectionStatus.CONNECTING);
 
         try {
@@ -149,10 +149,10 @@ public class MQConnectionManager implements DisposableBean {
     private Hashtable<String, Object> buildConnectionProperties(QueueManagerConfig config) {
         Hashtable<String, Object> props = new Hashtable<>();
 
-        // IBM MQ Java client connection property keys
-        props.put("hostname", config.getHost());
-        props.put("port",     config.getPort());
-        props.put("channel",  config.getChannel());
+        // connectionName covers both single ("host(port)") and
+        // multi-instance HA ("host1(1414),host2(1414)") formats.
+        props.put("connectionName", config.resolvedConnectionName());
+        props.put("channel",        config.getChannel());
 
         if (StringUtils.hasText(config.getUsername())) {
             props.put("userID",   config.getUsername());
