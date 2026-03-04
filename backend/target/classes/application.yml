@@ -1,0 +1,56 @@
+spring:
+  application:
+    name: mq-monitor
+
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    com.example.mqmonitor: INFO
+    com.ibm.mq: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+
+# ─────────────────────────────────────────────
+# MQ Monitor Configuration
+# ─────────────────────────────────────────────
+
+mq:
+  monitor:
+
+    polling-interval-seconds: 30
+
+    # 4 QMs → recommended pool size
+    thread-pool-size: 8
+
+    collection-timeout-seconds: 20
+
+    warning-threshold-percent: 70
+    critical-threshold-percent: 90
+
+    queue-managers:
+
+      - name: QM1
+        host: localhost
+        port: 1414
+        channel: DEV.ADMIN.SVRCONN
+        username: admin
+        password: passw0rd
+        queue-pattern: "TEST.*"
+        exclude-system-queues: true
+        enabled: true
+
