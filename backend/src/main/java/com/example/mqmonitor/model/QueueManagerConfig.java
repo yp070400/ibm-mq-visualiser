@@ -2,8 +2,8 @@ package com.example.mqmonitor.model;
 
 /**
  * Configuration for a single IBM MQ Queue Manager.
- * Bound from the mq.monitor.queue-managers list in application.yml.
- * Plain POJO — no annotation processor required.
+ * SSL keystores are configured globally in MonitorProperties.SslConfig.
+ * Per-QM only needs the cipher suite (different QMs may use different cipher specs).
  */
 public class QueueManagerConfig {
 
@@ -12,48 +12,36 @@ public class QueueManagerConfig {
     /**
      * IBM MQ connectionName — standard format: "hostname(port)"
      * Supports multi-instance/HA: "host1(1414),host2(1414)"
-     * If set, takes precedence over host + port fields.
+     * If set, takes precedence over host + port.
      */
     private String connectionName;
 
     /** Used when connectionName is not set. */
     private String host;
-    private int port = 1414;
+    private int    port = 1414;
 
-    private String channel;
-    private String username;
-    private String password;
-    private String sslCipherSuite;
-    private String sslKeyStore;
-    private String sslKeyStorePassword;
-    private String sslTrustStore;
-    private String sslTrustStorePassword;
-    private String queuePattern = "*";
+    private String  channel;
+    private String  username;
+    private String  password;
+
+    /** Must match the SSLCIPH value on the MQ server channel. e.g. ANY_TLS12 */
+    private String  sslCipherSuite;
+
+    private String  queuePattern       = "*";
     private boolean excludeSystemQueues = true;
-    private boolean enabled = true;
+    private boolean enabled             = true;
 
-    public String getName()                       { return name; }
-    public void   setName(String v)               { this.name = v; }
+    public String getName()                     { return name; }
+    public void   setName(String v)             { this.name = v; }
 
-    public String getConnectionName()             { return connectionName; }
-    public void   setConnectionName(String v)     { this.connectionName = v; }
+    public String getConnectionName()           { return connectionName; }
+    public void   setConnectionName(String v)   { this.connectionName = v; }
 
-    public String getHost()                       { return host; }
-    public void   setHost(String v)               { this.host = v; }
+    public String getHost()                     { return host; }
+    public void   setHost(String v)             { this.host = v; }
 
-    public int    getPort()                       { return port; }
-    public void   setPort(int v)                  { this.port = v; }
-
-    /**
-     * Returns connectionName if set, otherwise constructs "host(port)" from
-     * the individual fields — so both config styles produce the same result.
-     */
-    public String resolvedConnectionName() {
-        if (connectionName != null && !connectionName.isBlank()) {
-            return connectionName;
-        }
-        return host + "(" + port + ")";
-    }
+    public int    getPort()                     { return port; }
+    public void   setPort(int v)                { this.port = v; }
 
     public String getChannel()                  { return channel; }
     public void   setChannel(String v)          { this.channel = v; }
@@ -67,18 +55,6 @@ public class QueueManagerConfig {
     public String getSslCipherSuite()           { return sslCipherSuite; }
     public void   setSslCipherSuite(String v)   { this.sslCipherSuite = v; }
 
-    public String getSslKeyStore()              { return sslKeyStore; }
-    public void   setSslKeyStore(String v)      { this.sslKeyStore = v; }
-
-    public String getSslKeyStorePassword()      { return sslKeyStorePassword; }
-    public void   setSslKeyStorePassword(String v) { this.sslKeyStorePassword = v; }
-
-    public String getSslTrustStore()            { return sslTrustStore; }
-    public void   setSslTrustStore(String v)    { this.sslTrustStore = v; }
-
-    public String getSslTrustStorePassword()    { return sslTrustStorePassword; }
-    public void   setSslTrustStorePassword(String v) { this.sslTrustStorePassword = v; }
-
     public String getQueuePattern()             { return queuePattern; }
     public void   setQueuePattern(String v)     { this.queuePattern = v; }
 
@@ -87,4 +63,12 @@ public class QueueManagerConfig {
 
     public boolean isEnabled()                  { return enabled; }
     public void    setEnabled(boolean v)        { this.enabled = v; }
+
+    /** Returns connectionName if set, otherwise builds "host(port)". */
+    public String resolvedConnectionName() {
+        if (connectionName != null && !connectionName.isBlank()) {
+            return connectionName;
+        }
+        return host + "(" + port + ")";
+    }
 }

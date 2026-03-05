@@ -15,6 +15,7 @@ com/example/mqmonitor/api/QueueManagerController$1.class
 com/example/mqmonitor/config/AppConfig$NamedThreadFactory.class
 com/example/mqmonitor/config/MonitorProperties.class
 com/example/mqmonitor/scheduler/MQPollingScheduler.class
+com/example/mqmonitor/config/MonitorProperties$SslConfig.class
 com/example/mqmonitor/MQMonitorApplication.class
 com/example/mqmonitor/api/QueueStatsController.class
 com/example/mqmonitor/mq/MQPCFClient.class

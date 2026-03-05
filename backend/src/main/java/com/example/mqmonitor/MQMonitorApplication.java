@@ -5,11 +5,12 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
+import com.example.mqmonitor.config.IbmMqProperties;
 import com.example.mqmonitor.config.MonitorProperties;
 
 @SpringBootApplication
 @EnableScheduling
-@EnableConfigurationProperties(MonitorProperties.class)
+@EnableConfigurationProperties({MonitorProperties.class, IbmMqProperties.class})
 public class MQMonitorApplication {
 
     public static void main(String[] args) {

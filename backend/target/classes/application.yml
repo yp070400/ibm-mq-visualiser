@@ -33,23 +33,24 @@ mq:
   monitor:
 
     polling-interval-seconds: 30
-
-    # 4 QMs → recommended pool size
     thread-pool-size: 8
-
     collection-timeout-seconds: 20
-
     warning-threshold-percent: 70
     critical-threshold-percent: 90
 
+    # ── Global SSL config ────────────────────────────────────────────────────
+    # Shared across all queue managers. Leave blank for plain-text connections.
+    # Supports both JKS and PKCS12 — format is auto-detected.
+    ssl:
+      key-store: ""             # /path/to/keystore.jks
+      key-store-password: ""
+      trust-store: ""           # /path/to/truststore.jks
+      trust-store-password: ""
+
+    # ── Queue Managers ───────────────────────────────────────────────────────
     queue-managers:
 
-      # Style 1: connectionName (IBM MQ standard — use this for real servers)
-      # connection-name: "mq-server.example.com(1414)"
-      # Multi-instance / HA example:
-      # connection-name: "mq1.example.com(1414),mq2.example.com(1414)"
-
-      # Style 2: separate host + port (convenient for local/Docker)
+      # Local / Docker (no SSL)
       - name: QM1
         host: localhost
         port: 1414
@@ -59,4 +60,14 @@ mq:
         queue-pattern: "TEST.*"
         exclude-system-queues: true
         enabled: true
+
+      # Remote server with SSL — uncomment and fill in when ready
+      # - name: QM_PROD
+      #   connection-name: "mq-server.example.com(1414)"
+      #   channel: PROD.ADMIN.SVRCONN
+      #   username: mqadmin
+      #   password: passw0rd
+      #   ssl-cipher-suite: "ANY_TLS12"
+      #   exclude-system-queues: true
+      #   enabled: false
 

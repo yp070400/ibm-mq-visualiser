@@ -2,44 +2,76 @@ package com.example.mqmonitor.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-import com.example.mqmonitor.model.QueueManagerConfig;
-
-import java.util.ArrayList;
-import java.util.List;
-
 /**
- * Strongly-typed binding for the mq.monitor configuration block.
- * Plain POJO — no annotation processor required.
+ * Monitoring-specific settings (polling schedule, thresholds, queue filtering).
+ * Connection settings live in IbmMqProperties (ibm.mq.*).
  */
 @ConfigurationProperties(prefix = "mq.monitor")
 public class MonitorProperties {
 
-    private int pollingIntervalSeconds = 30;
-    private int threadPoolSize = 10;
-    private int collectionTimeoutSeconds = 20;
-    private int warningThresholdPercent = 70;
-    private int criticalThresholdPercent = 90;
-    private List<QueueManagerConfig> queueManagers = new ArrayList<>();
+    private int     pollingIntervalSeconds   = 30;
+    private int     threadPoolSize           = 10;
+    private int     collectionTimeoutSeconds = 20;
+    private int     warningThresholdPercent  = 70;
+    private int     criticalThresholdPercent = 90;
 
-    public int getPollingIntervalSeconds()          { return pollingIntervalSeconds; }
-    public void setPollingIntervalSeconds(int v)    { this.pollingIntervalSeconds = v; }
+    /** Wildcard pattern applied to INQUIRE_Q and INQUIRE_Q_STATUS PCF commands. */
+    private String  queuePattern             = "*";
 
-    public int getThreadPoolSize()                  { return threadPoolSize; }
-    public void setThreadPoolSize(int v)            { this.threadPoolSize = v; }
+    /** When true, queues starting with SYSTEM.* or AMQ.* are excluded from results. */
+    private boolean excludeSystemQueues      = true;
 
-    public int getCollectionTimeoutSeconds()        { return collectionTimeoutSeconds; }
-    public void setCollectionTimeoutSeconds(int v)  { this.collectionTimeoutSeconds = v; }
+    /** Global SSL keystore / truststore — shared across all queue managers. */
+    private SslConfig ssl = new SslConfig();
 
-    public int getWarningThresholdPercent()         { return warningThresholdPercent; }
-    public void setWarningThresholdPercent(int v)   { this.warningThresholdPercent = v; }
+    // ── Getters / Setters ────────────────────────────────────────────────────
 
-    public int getCriticalThresholdPercent()        { return criticalThresholdPercent; }
-    public void setCriticalThresholdPercent(int v)  { this.criticalThresholdPercent = v; }
+    public int     getPollingIntervalSeconds()          { return pollingIntervalSeconds; }
+    public void    setPollingIntervalSeconds(int v)     { this.pollingIntervalSeconds = v; }
 
-    public List<QueueManagerConfig> getQueueManagers()          { return queueManagers; }
-    public void setQueueManagers(List<QueueManagerConfig> v)    { this.queueManagers = v; }
+    public int     getThreadPoolSize()                  { return threadPoolSize; }
+    public void    setThreadPoolSize(int v)             { this.threadPoolSize = v; }
 
-    public List<QueueManagerConfig> enabledQueueManagers() {
-        return queueManagers.stream().filter(QueueManagerConfig::isEnabled).toList();
+    public int     getCollectionTimeoutSeconds()        { return collectionTimeoutSeconds; }
+    public void    setCollectionTimeoutSeconds(int v)   { this.collectionTimeoutSeconds = v; }
+
+    public int     getWarningThresholdPercent()         { return warningThresholdPercent; }
+    public void    setWarningThresholdPercent(int v)    { this.warningThresholdPercent = v; }
+
+    public int     getCriticalThresholdPercent()        { return criticalThresholdPercent; }
+    public void    setCriticalThresholdPercent(int v)   { this.criticalThresholdPercent = v; }
+
+    public String  getQueuePattern()                    { return queuePattern; }
+    public void    setQueuePattern(String v)            { this.queuePattern = v; }
+
+    public boolean isExcludeSystemQueues()              { return excludeSystemQueues; }
+    public void    setExcludeSystemQueues(boolean v)    { this.excludeSystemQueues = v; }
+
+    public SslConfig getSsl()                           { return ssl; }
+    public void      setSsl(SslConfig v)                { this.ssl = v; }
+
+    // ── Nested SSL config ────────────────────────────────────────────────────
+
+    /**
+     * Global SSL stores applied to all MQ connections via JVM system properties.
+     */
+    public static class SslConfig {
+
+        private String keyStore;
+        private String keyStorePassword;
+        private String trustStore;
+        private String trustStorePassword;
+
+        public String getKeyStore()                     { return keyStore; }
+        public void   setKeyStore(String v)             { this.keyStore = v; }
+
+        public String getKeyStorePassword()             { return keyStorePassword; }
+        public void   setKeyStorePassword(String v)     { this.keyStorePassword = v; }
+
+        public String getTrustStore()                   { return trustStore; }
+        public void   setTrustStore(String v)           { this.trustStore = v; }
+
+        public String getTrustStorePassword()           { return trustStorePassword; }
+        public void   setTrustStorePassword(String v)   { this.trustStorePassword = v; }
     }
 }

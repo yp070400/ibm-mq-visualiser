@@ -77,6 +77,13 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <jvmArguments>
+                        <!-- Use standard JSSE cipher names instead of IBM-specific names.
+                             Required when running on non-IBM JDK (OpenJDK, Microsoft JDK, etc.) -->
+                        -Dcom.ibm.mq.cfg.useIBMCipherMappings=false
+                    </jvmArguments>
+                </configuration>
             </plugin>
         </plugins>
     </build>
