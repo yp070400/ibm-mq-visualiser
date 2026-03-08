@@ -1,5 +1,6 @@
 package com.example.mqmonitor.mq;
 
+import com.example.mqmonitor.config.MonitorProperties;
 import com.example.mqmonitor.model.ConnectionStatus;
 import com.example.mqmonitor.model.QueueManagerConfig;
 import com.ibm.mq.MQException;
@@ -33,10 +34,16 @@ public class MQConnectionManager implements DisposableBean {
 
     private static final Logger log = LoggerFactory.getLogger(MQConnectionManager.class);
 
+    private final MonitorProperties monitorProperties;
+
     private final ConcurrentHashMap<String, MQQueueManager>   queueManagers = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, PCFMessageAgent>  agents        = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, ReentrantLock>    locks         = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, ConnectionStatus> statuses      = new ConcurrentHashMap<>();
+
+    public MQConnectionManager(MonitorProperties monitorProperties) {
+        this.monitorProperties = monitorProperties;
+    }
 
     // ── Public API ────────────────────────────────────────────────────────────
 
@@ -44,6 +51,15 @@ public class MQConnectionManager implements DisposableBean {
         PCFMessageAgent existing = agents.get(config.getName());
         if (existing != null) return existing;
         return connectWithLock(config);
+    }
+
+    /**
+     * Returns the underlying MQQueueManager for direct queue operations (get/put/browse).
+     * Calls getAgent() first to ensure the connection is established.
+     */
+    public MQQueueManager getQueueManager(QueueManagerConfig config) throws MQException {
+        getAgent(config); // ensures connection is established (lazy, locked)
+        return queueManagers.get(config.getName());
     }
 
     public void markDisconnected(String qmName, String reason) {
@@ -87,6 +103,8 @@ public class MQConnectionManager implements DisposableBean {
             queueManagers.put(name, qmgr);
 
             PCFMessageAgent agent = new PCFMessageAgent(qmgr);
+            // Prevent agent.send() from blocking forever — fail fast after the configured timeout
+            agent.setWaitInterval(monitorProperties.getCollectionTimeoutSeconds() * 1000);
             agents.put(name, agent);
 
             statuses.put(name, ConnectionStatus.CONNECTED);
@@ -105,8 +123,14 @@ public class MQConnectionManager implements DisposableBean {
     private Hashtable<String, Object> buildProps(QueueManagerConfig config) {
         Hashtable<String, Object> props = new Hashtable<>();
 
-        props.put("connectionName", config.resolvedConnectionName());
-        props.put("channel",        config.getChannel());
+        // Use separate hostName + port + explicit transportType=1 (CLIENT mode).
+        // This matches MQConnectionFactory's internal behavior and avoids the
+        // connectionName parsing code path that triggers JSSE initialisation
+        // even when SSL is not configured.
+        props.put("hostname",      config.getHost());
+        props.put("port",          config.getPort());
+        props.put("transportType", 1);   // WMQ_CM_CLIENT
+        props.put("channel",       config.getChannel());
 
         if (StringUtils.hasText(config.getUsername())) {
             props.put("userID",   config.getUsername());
@@ -115,9 +139,6 @@ public class MQConnectionManager implements DisposableBean {
             props.put("password", config.getPassword());
         }
 
-        // SSL: only the cipher suite is needed here.
-        // Keystore / truststore are set as JVM system properties by SSLConfig.init()
-        // before the first connection attempt.
         if (StringUtils.hasText(config.getSslCipherSuite())) {
             props.put("sslCipherSuite", config.getSslCipherSuite());
             log.debug("QM {}: using cipher suite {}", config.getName(), config.getSslCipherSuite());

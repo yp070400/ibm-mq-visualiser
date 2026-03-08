@@ -20,8 +20,10 @@ const HEALTH_ORDER = { CRITICAL: 0, WARNING: 1, UNKNOWN: 2, NORMAL: 3 }
 /**
  * Sortable table showing all queues for a selected Queue Manager.
  * Default sort: health (CRITICAL first), then depth% descending — matches server default.
+ *
+ * Action callbacks (onMessages, onSend, onPurge) open modals/panels in App.jsx.
  */
-export function QueueTable({ queues, loading, error, filter }) {
+export function QueueTable({ queues, loading, error, filter, qmName, onMessages, onSend, onPurge }) {
   const [sortKey, setSortKey]   = useState('health')
   const [sortDir, setSortDir]   = useState('asc')
 
@@ -77,11 +79,12 @@ export function QueueTable({ queues, loading, error, filter }) {
               </th>
             ))}
             <th>Depth Bar</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
           {sorted.length === 0 && (
-            <tr><td colSpan={COLUMNS.length + 1} className="no-data">No queues found</td></tr>
+            <tr><td colSpan={COLUMNS.length + 2} className="no-data">No queues found</td></tr>
           )}
           {sorted.map(q => (
             <tr key={q.queueName} className={`row-health-${q.health?.toLowerCase()}`}>
@@ -102,6 +105,31 @@ export function QueueTable({ queues, loading, error, filter }) {
                   percent={q.depthPercent}
                   health={q.health}
                 />
+              </td>
+              <td className="action-cell">
+                <button
+                  className="action-btn"
+                  title="Browse messages"
+                  onClick={() => onMessages?.(q.queueName)}
+                  disabled={q.inhibitGet}
+                >
+                  📨
+                </button>
+                <button
+                  className="action-btn"
+                  title="Send message"
+                  onClick={() => onSend?.(q.queueName)}
+                  disabled={q.inhibitPut}
+                >
+                  ✉️
+                </button>
+                <button
+                  className="action-btn action-btn-danger"
+                  title="Purge queue"
+                  onClick={() => onPurge?.(q.queueName, q.currentDepth)}
+                >
+                  🗑️
+                </button>
               </td>
             </tr>
           ))}

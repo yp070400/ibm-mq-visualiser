@@ -134,6 +134,12 @@ public class MQMonitoringService {
                 .toList();
     }
 
+    public Optional<QueueManagerConfig> getQueueManagerConfig(String name) {
+        return queueManagerConfigs.stream()
+                .filter(c -> c.getName().equalsIgnoreCase(name))
+                .findFirst();
+    }
+
     // ── Config builder ────────────────────────────────────────────────────────
 
     private static List<QueueManagerConfig> buildConfigs(IbmMqProperties ibmMq,
