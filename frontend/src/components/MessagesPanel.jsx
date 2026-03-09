@@ -5,7 +5,7 @@ import { api } from '../api/mqApi.js'
  * Right-side slide-in drawer showing messages for a queue.
  * Supports browse, per-message delete, expand/collapse body, and purge trigger.
  */
-export function MessagesPanel({ qmName, queueName, onClose, onToast, onPurge }) {
+export function MessagesPanel({ qmName, queueName, onClose, onToast, onPurge, refreshKey }) {
   const [messages, setMessages] = useState([])
   const [loading, setLoading]   = useState(true)
   const [expandedId, setExpandedId] = useState(null)
@@ -23,7 +23,7 @@ export function MessagesPanel({ qmName, queueName, onClose, onToast, onPurge }) 
     }
   }, [qmName, queueName, onToast])
 
-  useEffect(() => { fetchMessages() }, [fetchMessages])
+  useEffect(() => { fetchMessages() }, [fetchMessages, refreshKey])
 
   const handleDelete = async (msgId) => {
     setDeleting(msgId)

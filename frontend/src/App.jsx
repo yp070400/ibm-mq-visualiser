@@ -48,7 +48,11 @@ export default function App() {
     data: queues,
     loading: queuesLoading,
     error: queuesError,
+    refresh: refreshQueues,
   } = useAutoRefresh(fetchQueues, REFRESH_INTERVAL_MS)
+
+  // Used to signal MessagesPanel to re-fetch its message list
+  const [panelRefreshKey, setPanelRefreshKey] = useState(0)
 
   // ── Selected QM summary ──────────────────────────────────────────────────────
   const selectedManager = managers?.find(m => m.name === selectedQM)
@@ -85,6 +89,7 @@ export default function App() {
     setPurgeModal(null)
     setMessagesPanel(null) // queue is now empty — close the messages panel if open
     if (result) {
+      refreshQueues()
       addToast({
         type: 'success',
         message: `Purged ${result.messagesDeleted} message${result.messagesDeleted !== 1 ? 's' : ''} from ${result.queueName}`,
@@ -92,13 +97,18 @@ export default function App() {
     } else if (error) {
       addToast({ type: 'error', message: `Purge failed: ${error}` })
     }
-  }, [addToast])
+  }, [addToast, refreshQueues])
 
   // ── Send completion ──────────────────────────────────────────────────────────
-  const handleMessageSent = useCallback((msgId) => {
+  const handleMessageSent = useCallback((msgId, sentToQueue) => {
     setSendModal(null)
+    refreshQueues()
+    // If the messages panel is open for the same queue, refresh it too
+    if (messagesPanel?.queueName === sentToQueue) {
+      setPanelRefreshKey(k => k + 1)
+    }
     addToast({ type: 'success', message: `Message sent (ID: ${msgId.slice(0, 8)}…)` })
-  }, [addToast])
+  }, [addToast, refreshQueues, messagesPanel])
 
   return (
     <div className="app-layout">
@@ -197,6 +207,7 @@ export default function App() {
           onClose={() => setMessagesPanel(null)}
           onToast={addToast}
           onPurge={handlePurgeFromPanel}
+          refreshKey={panelRefreshKey}
         />
       )}
 
@@ -205,7 +216,7 @@ export default function App() {
           qmName={sendModal.qmName}
           queueName={sendModal.queueName}
           onClose={() => setSendModal(null)}
-          onSent={handleMessageSent}
+          onSent={(msgId) => handleMessageSent(msgId, sendModal.queueName)}
         />
       )}
 
