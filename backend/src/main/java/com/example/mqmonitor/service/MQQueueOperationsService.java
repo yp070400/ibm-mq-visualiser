@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 /**
@@ -239,7 +240,7 @@ public class MQQueueOperationsService {
     private MessageDto toDto(MQMessage msg) throws IOException {
         String msgId   = bytesToHex(msg.messageId);
         String correlId = isAllZero(msg.correlationId) ? "" : bytesToHex(msg.correlationId);
-        String putTime = formatPutTime(msg.putDate, msg.putTime);
+        String putTime = formatPutTime(msg.putDateTime);
         String format  = (msg.format != null ? msg.format : "").trim();
 
         int available = msg.getDataLength();
@@ -253,17 +254,15 @@ public class MQQueueOperationsService {
         return new MessageDto(msgId, correlId, putTime, format, available, body);
     }
 
-    private static String formatPutTime(String putDate, String putTime) {
-        if (putDate == null || putDate.isBlank()) return "";
-        try {
-            String d = putDate.trim();
-            String t = (putTime != null) ? putTime.trim() : "000000";
-            if (d.length() >= 8 && t.length() >= 6) {
-                return d.substring(0, 4) + "-" + d.substring(4, 6) + "-" + d.substring(6, 8)
-                        + "T" + t.substring(0, 2) + ":" + t.substring(2, 4) + ":" + t.substring(4, 6);
-            }
-        } catch (Exception ignored) {}
-        return putDate + " " + putTime;
+    private static String formatPutTime(GregorianCalendar cal) {
+        if (cal == null) return "";
+        return String.format("%04d-%02d-%02dT%02d:%02d:%02d",
+                cal.get(java.util.Calendar.YEAR),
+                cal.get(java.util.Calendar.MONTH) + 1,
+                cal.get(java.util.Calendar.DAY_OF_MONTH),
+                cal.get(java.util.Calendar.HOUR_OF_DAY),
+                cal.get(java.util.Calendar.MINUTE),
+                cal.get(java.util.Calendar.SECOND));
     }
 
     private static String decodeBody(byte[] data, String format) {

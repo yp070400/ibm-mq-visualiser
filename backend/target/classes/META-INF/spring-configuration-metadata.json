@@ -1,0 +1,126 @@
+{
+  "groups": [
+    {
+      "name": "ibm.mq",
+      "type": "com.example.mqmonitor.config.IbmMqProperties",
+      "sourceType": "com.example.mqmonitor.config.IbmMqProperties"
+    },
+    {
+      "name": "mq.monitor",
+      "type": "com.example.mqmonitor.config.MonitorProperties",
+      "sourceType": "com.example.mqmonitor.config.MonitorProperties"
+    },
+    {
+      "name": "mq.monitor.ssl",
+      "type": "com.example.mqmonitor.config.MonitorProperties$SslConfig",
+      "sourceType": "com.example.mqmonitor.config.MonitorProperties",
+      "sourceMethod": "getSsl()"
+    }
+  ],
+  "properties": [
+    {
+      "name": "ibm.mq.additional-connections",
+      "type": "java.util.List<com.example.mqmonitor.config.IbmMqProperties$AdditionalConnection>",
+      "description": "Additional queue managers to monitor beyond the primary one.",
+      "sourceType": "com.example.mqmonitor.config.IbmMqProperties"
+    },
+    {
+      "name": "ibm.mq.channel",
+      "type": "java.lang.String",
+      "sourceType": "com.example.mqmonitor.config.IbmMqProperties"
+    },
+    {
+      "name": "ibm.mq.conn-name",
+      "type": "java.lang.String",
+      "description": "Connection name: \"host(port)\" or \"host1(1414),host2(1414)\" for HA (ibm.mq.conn-name)",
+      "sourceType": "com.example.mqmonitor.config.IbmMqProperties"
+    },
+    {
+      "name": "ibm.mq.password",
+      "type": "java.lang.String",
+      "sourceType": "com.example.mqmonitor.config.IbmMqProperties"
+    },
+    {
+      "name": "ibm.mq.queue-manager",
+      "type": "java.lang.String",
+      "description": "IBM MQ queue manager name (ibm.mq.queue-manager)",
+      "sourceType": "com.example.mqmonitor.config.IbmMqProperties"
+    },
+    {
+      "name": "ibm.mq.ssl-cipher-suite",
+      "type": "java.lang.String",
+      "description": "TLS cipher suite, e.g. ANY_TLS12. Must match the server channel SSLCIPH.",
+      "sourceType": "com.example.mqmonitor.config.IbmMqProperties"
+    },
+    {
+      "name": "ibm.mq.user",
+      "type": "java.lang.String",
+      "sourceType": "com.example.mqmonitor.config.IbmMqProperties"
+    },
+    {
+      "name": "mq.monitor.collection-timeout-seconds",
+      "type": "java.lang.Integer",
+      "sourceType": "com.example.mqmonitor.config.MonitorProperties",
+      "defaultValue": 20
+    },
+    {
+      "name": "mq.monitor.critical-threshold-percent",
+      "type": "java.lang.Integer",
+      "sourceType": "com.example.mqmonitor.config.MonitorProperties",
+      "defaultValue": 90
+    },
+    {
+      "name": "mq.monitor.exclude-system-queues",
+      "type": "java.lang.Boolean",
+      "description": "When true, queues starting with SYSTEM.* or AMQ.* are excluded from results.",
+      "sourceType": "com.example.mqmonitor.config.MonitorProperties",
+      "defaultValue": true
+    },
+    {
+      "name": "mq.monitor.polling-interval-seconds",
+      "type": "java.lang.Integer",
+      "sourceType": "com.example.mqmonitor.config.MonitorProperties",
+      "defaultValue": 30
+    },
+    {
+      "name": "mq.monitor.queue-pattern",
+      "type": "java.lang.String",
+      "description": "Wildcard pattern applied to INQUIRE_Q and INQUIRE_Q_STATUS PCF commands.",
+      "sourceType": "com.example.mqmonitor.config.MonitorProperties",
+      "defaultValue": "*"
+    },
+    {
+      "name": "mq.monitor.ssl.key-store",
+      "type": "java.lang.String",
+      "sourceType": "com.example.mqmonitor.config.MonitorProperties$SslConfig"
+    },
+    {
+      "name": "mq.monitor.ssl.key-store-password",
+      "type": "java.lang.String",
+      "sourceType": "com.example.mqmonitor.config.MonitorProperties$SslConfig"
+    },
+    {
+      "name": "mq.monitor.ssl.trust-store",
+      "type": "java.lang.String",
+      "sourceType": "com.example.mqmonitor.config.MonitorProperties$SslConfig"
+    },
+    {
+      "name": "mq.monitor.ssl.trust-store-password",
+      "type": "java.lang.String",
+      "sourceType": "com.example.mqmonitor.config.MonitorProperties$SslConfig"
+    },
+    {
+      "name": "mq.monitor.thread-pool-size",
+      "type": "java.lang.Integer",
+      "sourceType": "com.example.mqmonitor.config.MonitorProperties",
+      "defaultValue": 10
+    },
+    {
+      "name": "mq.monitor.warning-threshold-percent",
+      "type": "java.lang.Integer",
+      "sourceType": "com.example.mqmonitor.config.MonitorProperties",
+      "defaultValue": 70
+    }
+  ],
+  "hints": []
+}

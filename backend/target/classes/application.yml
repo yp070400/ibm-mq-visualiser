@@ -26,48 +26,35 @@ logging:
     console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
 
 # ─────────────────────────────────────────────
-# MQ Monitor Configuration
+# IBM MQ Connection (IBM Spring Boot Starter convention)
+# ─────────────────────────────────────────────
+
+ibm:
+  mq:
+    queue-manager: QM1
+    conn-name: "localhost(1414)"
+    channel: DEV.ADMIN.SVRCONN
+    user: admin
+    password: passw0rd
+
+    # Additional queue managers (optional):
+    # additional-connections:
+    #   - queue-manager: QM2
+    #     conn-name: "host2(1414)"
+    #     channel: PROD.SVRCONN
+    #     user: admin
+    #     password: passw0rd
+
+# ─────────────────────────────────────────────
+# MQ Monitor Settings
 # ─────────────────────────────────────────────
 
 mq:
   monitor:
-
     polling-interval-seconds: 30
     thread-pool-size: 8
     collection-timeout-seconds: 20
     warning-threshold-percent: 70
     critical-threshold-percent: 90
-
-    # ── Global SSL config ────────────────────────────────────────────────────
-    # Shared across all queue managers. Leave blank for plain-text connections.
-    # Supports both JKS and PKCS12 — format is auto-detected.
-    ssl:
-      key-store: ""             # /path/to/keystore.jks
-      key-store-password: ""
-      trust-store: ""           # /path/to/truststore.jks
-      trust-store-password: ""
-
-    # ── Queue Managers ───────────────────────────────────────────────────────
-    queue-managers:
-
-      # Local / Docker (no SSL)
-      - name: QM1
-        host: localhost
-        port: 1414
-        channel: DEV.ADMIN.SVRCONN
-        username: admin
-        password: passw0rd
-        queue-pattern: "TEST.*"
-        exclude-system-queues: true
-        enabled: true
-
-      # Remote server with SSL — uncomment and fill in when ready
-      # - name: QM_PROD
-      #   connection-name: "mq-server.example.com(1414)"
-      #   channel: PROD.ADMIN.SVRCONN
-      #   username: mqadmin
-      #   password: passw0rd
-      #   ssl-cipher-suite: "ANY_TLS12"
-      #   exclude-system-queues: true
-      #   enabled: false
-
+    queue-pattern: "TEST.*"
+    exclude-system-queues: true
